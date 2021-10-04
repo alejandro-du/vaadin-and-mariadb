@@ -2,6 +2,7 @@ package com.example.application.ui;
 
 import com.example.application.backend.Book;
 import com.example.application.backend.BookService;
+import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Image;
@@ -19,10 +20,19 @@ public class BooksView extends VerticalLayout {
         grid.addColumn(Book::getAuthor).setHeader("Author");
         grid.addColumn(Book::getPublishDate).setHeader("Publish date");
         grid.addColumn(Book::getPages).setHeader("Pages");
+        grid.setPageSize(100);
 
-        grid.setItems(service.findAll());
+        grid.setItems(query ->
+                service.findAll(query.getPage(), query.getPageSize()));
 
-        add(grid);
+        var filter = new DatePicker("Filter by publish date");
+        filter.addValueChangeListener(event ->
+                grid.setItems(query ->
+                        service.findAll(filter.getValue(), query.getPage(), query.getPageSize())
+                )
+        );
+
+        add(filter, grid);
         setSizeFull();
     }
 
